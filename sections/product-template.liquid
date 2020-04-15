@@ -1,0 +1,458 @@
+<div id="ProductSection-{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="product" data-enable-history-state="true">
+
+    {% assign current_variant = product.selected_or_first_available_variant %}
+
+    {% case section.settings.image_size %}
+        {% when 'small' %}
+            {%- assign image_size = '640x' -%}
+        {% when 'medium' %}
+            {%- assign image_size = '820x' -%}
+        {% when 'large' %}
+            {%- assign image_size = '920x' -%}
+    {% endcase %}
+
+    <section class="section section--product-single js-product-single" data-section-id="{{ section.id }}" data-section-type="product-single">
+
+        <div class="product-single product-single--{{ section.settings.layout }} product-single--text-{{ section.settings.text_color }} product-single--{{product.id}} js-product-{{product.id}}">
+            <div class="product-single__top">
+
+                {% if section.settings.show_breadcrumbs %}
+                    <div class="container">
+                        <nav class="breadcrumb breadcrumb--product-single breadcrumb--{{ section.settings.text_color }} u-text-center js-breadcrumb" role="navigation" aria-label="breadcrumbs">
+                            <ul class="breadcrumb__items o-list-bare o-list-inline"> 
+                                <li class="breadcrumb__item o-list-inline__item">
+                                    <a href="/" title="{{ 'layout.navigation.home' | t }}" class="breadcrumb__link">{{ 'layout.navigation.home' | t }}</a>        
+                                </li>
+                                {% if collection.url %}
+                                    <li class="breadcrumb__item o-list-inline__item">
+                                        <a href="{{ collection.url }}" class="breadcrumb__link">{{ collection.title }}</a>
+                                    </li>
+                                {% endif %}
+                                <li class="breadcrumb__item o-list-inline__item">
+                                    <span href="/" class="breadcrumb__link breadcrumb__link--current">{{ product.title }}</span>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                {% endif %}
+                
+                <div class="product-single__top-bg product-single__top-bg--{{ section.settings.bg_height }}{% if section.settings.layout == 'classic' %} js-product-bg js-product-bg--{{ section.settings.bg_height }}{% endif %}" style="background-color: {{ section.settings.bg_color }}"></div>
+
+                <div class="container container--small">
+                    <div class="section__title section__title--center{% if section.settings.show_vendor %} section__title--vendor{% endif %} js-product-title">
+                        <h1 class="section__title-text product-single__title-text">{{ product.title }}</h1>
+                        {% if section.settings.show_vendor %}
+                            <h4 class="section__title-desc product-single__title-desc">{{ product.vendor | link_to_vendor }}</h4>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="container">
+                    {% if section.settings.layout == 'classic' %}
+                    <div class="u-hidden@desk-up" data-set="cart-photo-replace">
+                        <div class="js-cart-replace">
+                    {% endif %}
+                            <div class="product-single__photo">
+                                 <div class="product-single__photo product-single__photo--{{ section.settings.image_size }} js-product-slider" data-slider-id="1">
+                                    {% for image in product.images %}
+                                        <div class="product-single__photo__item" data-variant-id="{% for variant in image.variants %}{{ variant.id }}{% endfor %}" data-slide-id="{{ forloop.index0 }}">
+
+                                            {% if section.settings.enable_zoom %}
+                                            <a href="{{ image.src | img_url: '2048x2048' }}" class="product-single__photo-zoom js-product-zoom js-no-transition">
+                                            {% endif %}
+                                                {%- assign img_url = image.src | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+                                                <img class="product-single__photo__img lazyload js"
+                                                    src="{{ image.src | img_url: '300x' }}" 
+                                                    data-src="{{ img_url }}"
+                                                    data-widths="[180, 360, 540, 720, 900, 1080, 1296, 1512, 1728, 2048]"
+                                                    data-sizes="auto"
+                                                    data-ratio="{{ image.aspect_ratio }}"
+                                                    alt="{{ image.alt | escape }}">
+                                                <noscript>
+                                                    <img class="product-single__photo__img"
+                                                        src="{{ image.src | img_url: '900x' }}"
+                                                        alt="{{ image.alt | escape }}">
+                                                </noscript>
+                                            {% if section.settings.enable_zoom %}
+                                            </a>
+                                            {% endif %}
+
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                {% if product.images.size > 1 %}
+                                    <div class="product-single__photo-thumbs js-product-single-thumbs">
+                                        {% for image in product.images %}
+                                            <div>Product image {{ forloop.index }}<img src="{{ image.src | img_url: '24x24', crop: 'center' }}" data-src="{{ image.src | img_url: '92x92', crop: 'center' }}" alt="{{ image.alt | escape }}" class="product-single__photos-thumbs__img lazyload"></div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                    {% if section.settings.layout == 'classic' %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="container container--medium">
+                <div class="product-single__bottom">
+                    <div class="o-layout o-layout--reverse o-layout--large">
+                        <div class="o-layout__item u-1/1 u-2/5@desk">
+
+                            {% if section.settings.layout == 'classic' %}
+                            <div class="u-hidden@desk-down" data-set="cart-replace">
+                                <div class="js-cart-replace">
+                            {% endif %}
+                                    <div class="product-single__box js-product-single-box">
+
+                                        <div class="product-single__price js-product-price">
+                                            <h3 class="product-single__price-text js-product-price-text">
+                                                <span class="u-hidden-visually">{{ 'products.general.regular_price' | t }}</span>
+                                                <span class="js-product-price-number">
+                                                    <span class="product-single__price-number{% if product.compare_at_price_max > product.price %} product-single__price-number--sale{% endif %}"><span class="money">{{ current_variant.price | money }}</span></span>
+                                                </span>
+                                                {% if product.compare_at_price_max > product.price %}
+                                                    <span class="u-hidden-visually">{{ 'products.general.sale_price' | t }}</span>
+                                                    <span class="js-product-price-compare">
+                                                        <s class="product-single__price-compare"><span class="money">{{ current_variant.compare_at_price | money }}</span></s>
+                                                    </span>
+                                                {% endif %}
+                                            </h3>
+                                        </div>
+
+                                        {% capture 'product_id_attr' %}js-product-form--{{ product.id }}{% endcapture %}
+                                        {% form 'product', product, class: "product-single__form js-product-form", id:product_id_attr %}
+
+                                            {% if settings.product_reviews %}
+                                                <div class="product-single__reviews-stars">
+                                                    <a href="#acc-reviews" class="product-single__reviews-stars-link js-accordion-scroll js-accordion-trigger">
+                                                        <span class="shopify-product-reviews-badge" data-id="{{ product.id }}"></span>
+                                                    </a>
+                                                </div>
+                                            {% endif %}
+
+                                            <div class="product-single__variant">
+                                                <select name="id" id="productSelect-1" class="product-single__variant-select">
+                                                    {% for variant in product.variants %}
+                                                        {% if variant.available %}
+                                                            <option {% if variant == product.selected_or_first_available_variant %} selected="selected" {% endif %} data-sku="{{ variant.sku }}" value="{{ variant.id }}">{{ variant.title }}</option>
+                                                        {% else %}
+                                                            <option disabled="disabled">{{ variant.title }} - {{ 'products.product.sold_out' | t }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+
+                                            {% if section.settings.show_quantity_selector %}
+                                                <div class="product-single__qty">
+                                                    <label for="Quantity" class="quantity-selector">{{ 'products.product.quantity' | t }}</label>
+                                                    <div class="product-single__qty-input">
+                                                        <input type="number" id="Quantity" name="quantity" value="1" min="1" class="quantity-selector">
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+
+                                            <div class="product-single__add js-product-buttons{% unless product.available %} product-single__add--sold{% endunless %}">
+
+                                                <button type="submit" name="add" class="c-btn c-btn--full c-btn--plus c-btn--{% if section.settings.enable_payment_button %}light{% else %}primary{% endif %} product-single__add-btn js-product-add">
+                                                    <span class="js-product-add-text">{{ 'products.product.add_to_cart' | t }}</span>
+                                                </button>
+                                                {% if section.settings.enable_payment_button %}
+                                                    {{ form | payment_button }}
+                                                {% endif %}
+
+                                            </div>
+                                        
+                                        {% endform %}
+
+                                        {% if section.settings.image != blank %}
+                                            <div class="product-single__img">
+                                                {%- assign img_url = section.settings.image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+                                                <img class="product-single__img__img lazyload js"
+                                                    src="{{ section.settings.image | img_url: '300x' }}" 
+                                                    data-src="{{ img_url }}"
+                                                    data-widths="[180, 360, 540, 720, 900]"
+                                                    data-sizes="auto"
+                                                    alt="{{ section.settings.image.alt }}">
+                                                <noscript>
+                                                    <img class="product-single__img__img"
+                                                        src="{{ section.settings.image | img_url: '720x' }}"
+                                                        alt="{{ section.settings.image.alt }}">
+                                                </noscript>
+                                            </div>
+                                        {% endif %}
+
+                                        {% if section.settings.show_share_buttons %}
+                                            {% capture share_link %}{{ shop.url }}{{ product.url }}{% endcapture %}
+                                            {% capture share_title %}{{ product.title | url_param_escape }}{% endcapture %}
+                                            {% capture share_img %}{{ product.featured_image | product_img_url: '1024x1024' }}{% endcapture %}
+                                            <div class="product-single__share">
+                                                <ul class="product-single__share-items o-list-bare">
+                                                    {% if settings.share_facebook %}
+                                                    <li class="product-single__share-item">
+                                                        <a href="//www.facebook.com/sharer.php?u={{ share_link }}" class="product-single__share-link icon-fallback" target="_blank">
+                                                            <i class="icon icon--facebook" aria-hidden="true"></i>
+                                                            <span class="icon-fallback__text">Facebook</span>
+                                                        </a>
+                                                    </li>
+                                                    {% endif %}
+                                                    {% if settings.share_twitter %}
+                                                    <li class="product-single__share-item">
+                                                        <a href="//twitter.com/share?text={{ share_title }}&amp;url={{ share_link }}" class="product-single__share-link icon-fallback" target="_blank">
+                                                            <i class="icon icon--twitter" aria-hidden="true"></i>
+                                                            <span class="icon-fallback__text">Twitter</span>
+                                                        </a>
+                                                    </li>
+                                                    {% endif %}
+                                                    {% if settings.share_pinterest %}
+                                                    <li class="product-single__share-item">
+                                                        <a href="http://pinterest.com/pin/create/button/?url={{ share_link }}&amp;media={{ share_img }}&amp;description={{ share_title }}" class="product-single__share-link icon-fallback" target="_blank">
+                                                            <i class="icon icon--pinterest" aria-hidden="true"></i>
+                                                            <span class="icon-fallback__text">Pinterest</span>
+                                                        </a>
+                                                    </li>
+                                                    {% endif %}
+                                                    {% if settings.share_fancy %}
+                                                    <li class="product-single__share-item">
+                                                        <a href="//www.thefancy.com/fancyit?ItemURL={{ share_link }}&Title={{ share_title }}&ImageURL={{ share_img }}" class="product-single__share-link icon-fallback" target="_blank">
+                                                            <i class="icon icon--fancy" aria-hidden="true"></i>
+                                                            <span class="icon-fallback__text">Fancy</span>
+                                                        </a>
+                                                    </li>
+                                                    {% endif %}
+                                                    {% if settings.share_mail %}
+                                                    <li class="product-single__share-item">
+                                                        <a href="mailto:?body={{ share_title }} - {{ share_link }}" class="product-single__share-link icon-fallback">
+                                                            <i class="icon icon--mail" aria-hidden="true"></i>
+                                                            <span class="icon-fallback__text">Email</span>
+                                                        </a>
+                                                    </li>
+                                                    {% endif %}
+                                                </ul>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                            {% if section.settings.layout == 'classic' %}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                        </div>
+                        <div class="o-layout__item u-1/1 u-3/5@desk">
+                            
+                            {% if section.settings.layout == 'classic' %}
+                                <div class="u-hidden@desk-down" data-set="cart-photo-replace"></div>
+                                <div class="u-hidden@desk-up" data-set="cart-replace"></div>
+                            {% endif %}
+                            
+                            <div class="product-single__content">
+                                <div class="product-single__content-text rte">
+                                    {{ product.description }}
+                                </div>
+
+                                <div class="product-single__accordion js-accordion">
+
+                                    {% for block in section.blocks %}
+                                        {%- assign tab = pages[block.settings.tab_content] -%}
+                                        {% unless tab.title == blank %}
+                                            <a href="#acc-{{ forloop.index }}" class="product-single__accordion__title js-accordion-trigger">
+                                                <h4 class="product-single__accordion__title-text">{{ tab.title }}</h4>
+                                                <span class="product-single__accordion__title-icon icon-fallback">
+                                                    <i class="icon icon--plus" aria-hidden="true"></i>
+                                                    <span class="icon-fallback__text">{{ 'products.layout.tab_label' | t }}</span>
+                                                </span>
+                                            </a>
+                                            <div id="acc-{{ forloop.index }}" class="product-single__accordion__item js-accordion-info">
+                                                <div class="product-single__accordion__item-wrap rte">
+                                                    {{ tab.content }}
+                                                </div>
+                                            </div>
+                                        {% endunless %}
+                                    {% endfor %}
+
+                                    {% if settings.product_reviews %}
+                                        <a href="#acc-reviews" class="product-single__accordion__title js-accordion-trigger js-review-accordion">
+                                            <h4 class="product-single__accordion__title-text">{{ 'products.layout.reviews' | t }}</h4>
+                                            <span class="product-single__accordion__title-icon icon-fallback">
+                                                <i class="icon icon--plus" aria-hidden="true"></i>
+                                                <span class="icon-fallback__text">{{ 'products.layout.tab_label' | t }}</span>
+                                            </span>
+                                        </a>
+                                        <div id="acc-reviews" class="product-single__accordion__item js-accordion-info">
+                                            <div class="product-single__accordion__item-wrap rte">
+                                                <div class="product-single__reviews">
+                                                    <div id="shopify-product-reviews" data-id="{{product.id}}">{{ product.metafields.spr.reviews }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                    
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+</div>
+
+{% schema %}
+{
+    "name": "Product page",
+    "class": "js-section__product-single",
+    "max_blocks": 3,
+    "settings": [
+        {
+            "type": "header",
+            "content": "Gallery settings"
+        },
+        {
+            "type": "checkbox",
+            "id": "enable_zoom",
+            "label": "Enable image zoom",
+            "default": true
+        },
+        {
+            "type": "select",
+            "id": "layout",
+            "label": "Layout",
+            "options": [
+                {
+                    "value": "full",
+                    "label": "Full width"
+                },
+                {
+                    "value": "classic",
+                    "label": "Classic"
+                }
+            ],
+            "default": "full"
+        },
+        {
+            "type": "color",
+            "id": "bg_color",
+            "label": "Background color",
+            "default": "#ffffff" 
+        },
+        {
+            "type": "select",
+            "id": "text_color",
+            "label": "Text color",
+            "options": [
+                {
+                    "value": "default",
+                    "label": "Default"
+                },
+                {
+                    "value": "default-light",
+                    "label": "Default light"
+                },
+                {
+                    "value": "dark",
+                    "label": "Dark"
+                },
+                {
+                    "value": "light",
+                    "label": "Light"
+                }
+            ],
+            "default": "default"
+        },
+        {
+            "type": "select",
+            "id": "bg_height",
+            "label": "Background height",
+            "options": [
+                {
+                    "value": "default",
+                    "label": "Default"
+                },
+                {
+                    "value": "full",
+                    "label": "Full"
+                }
+            ],
+            "default": "default"
+        },
+        {
+            "type": "select",
+            "id": "image_size",
+            "label": "Image size",
+            "options": [
+                {
+                    "value": "small",
+                    "label": "Small"
+                },
+                {
+                    "value": "medium",
+                    "label": "Medium"
+                },
+                {
+                    "value": "large",
+                    "label": "Large"
+                }
+            ],
+            "default": "medium"
+        },
+        {
+            "type": "header",
+            "content": "Page settings"
+        },
+        {
+            "type": "checkbox",
+            "id": "show_breadcrumbs",
+            "label": "Show breadcrumbs",
+            "default": false
+        },
+        {
+            "type": "checkbox",
+            "id": "show_vendor",
+            "label": "Show vendor",
+            "default": false
+        },
+        {
+            "type": "checkbox",
+            "id": "show_quantity_selector",
+            "label": "Show quantity selector",
+            "default": false
+        },
+        {
+            "type": "checkbox",
+            "id": "enable_payment_button",
+            "label": "Show dynamic checkout button",
+            "info": "Lets customers check out directly using a familiar payment method. [Learn more](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)",
+            "default": true
+        },
+        {
+            "type": "image_picker",
+            "id": "image",
+            "label": "Checkout badges image"
+        },
+        {
+            "type": "checkbox",
+            "id": "show_share_buttons",
+            "label": "Show social sharing buttons",
+            "default": true
+        }
+    ],
+    "blocks": [
+        {
+            "type": "text",
+            "name": "Content tab",
+            "settings": [
+                {
+                    "type": "page",
+                    "id": "tab_content",
+                    "label": "Tab content",
+                    "info": "Select page that will populate tab with content."
+                }
+            ]
+        }
+    ]
+}
+{% endschema %}

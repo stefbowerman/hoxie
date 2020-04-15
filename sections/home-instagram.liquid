@@ -1,0 +1,110 @@
+<style>
+.section--{{ section.id }} .home-insta__items:before {
+    {% if section.settings.overlay_strength == 100 %}
+        opacity: 1;
+    {% else %}
+        opacity: .{{ section.settings.overlay_strength }};
+    {% endif %}
+}
+</style>
+<section class="section section--{{ section.id }}" data-section-id="{{ section.id }}" data-section-type="home-instagram">
+    <div class="container">
+        
+        <a href="#" class="home-insta-link js-home-insta-link" target="_blank">
+            <div class="home-insta home-insta--{{ section.id }} home-insta--{{ section.settings.posts_limit }} js-home-insta" data-insta-token="{{ section.settings.feed_token }}" data-insta-count="{{ section.settings.posts_limit }}">
+                
+                {% if section.settings.feed_token != blank %}
+                    <div class="home-insta__items js-home-insta-list">
+                        <!-- Instagram feed after JS-->
+                    </div>
+                {% else %}
+                    <div class="home-insta__items">
+                        {% for i in (1..section.settings.posts_limit) %}
+                            <div class="home-insta__item">
+                                <div class="o-ratio">
+                                    <div class="o-ratio__content">
+                                        {% capture current %}{% cycle 1, 2, 3, 4 %}{% endcapture %}
+                                        {{ 'collection-' | append: current | placeholder_svg_tag: 'placeholder-svg' }}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% if section.settings.title != blank %}
+                    <div class="home-insta__title u-flex u-flex--middle u-flex--center{% if settings.type_header_underline %} home-insta__title--border{% endif %}">
+                        <h2 class="home-insta__title-text{% if section.settings.posts_limit == '5' or section.settings.posts_limit == '8' %} h1{% endif %}">{{ section.settings.title | escape }}</h2>
+                    </div>
+                {% endif %}
+
+            </div>
+        </a>
+
+    </div>
+</section> 
+
+{% schema %}
+{
+    "name": "Instagram feed",
+    "class": "js-section__home-instagram",
+    "settings": [
+        {
+            "type": "text",
+            "id": "title",
+            "label": "Heading",
+            "default": "Follow us on Instagram"
+        },
+        {
+            "type": "text",
+            "id": "feed_token",
+            "label": "Instagram Access Token",
+            "info": "[Get your Instagram Access Token](http://instagram.safeasmilk.co/). For more information [click here](https://support.safeasmilk.co/article/28-home-generate-your-instagram-access-token-for-your-shopify-store)."
+        },
+        {
+            "type": "select",
+            "id": "posts_limit",
+            "label": "Posts",
+            "options": [
+                {
+                    "value": "4",
+                    "label": "4"
+                },
+                {
+                    "value": "5",
+                    "label": "5"
+                },
+                {
+                    "value": "6",
+                    "label": "6"
+                },
+                {
+                    "value": "8",
+                    "label": "8"
+                },
+                {
+                    "value": "9",
+                    "label": "9"
+                }
+            ],
+            "default": "5"
+        },
+        {
+            "type": "range",
+            "id": "overlay_strength",
+            "label": "Overlay strength",
+            "unit": "%",
+            "min": 0,
+            "max": 100,
+            "step": 10,
+            "default": 30
+        }
+    ],
+    "presets": [
+        {
+            "name": "Instagram feed",
+            "category": "Social"
+        }
+    ]
+}
+{% endschema %}

@@ -1,0 +1,409 @@
+<style type="text/css">
+    .header, .header--mega .primary-nav .nav__sub-wrap {background-color: {{ section.settings.header_bg }}}
+    {% if section.settings.header_bg == '#ffffff' %}
+    .header.js-header-sticky--fixed {border-bottom: 1px solid #e4e4e4}
+    {% endif %}
+    {% if section.settings.style contains 'icons' %}
+    .primary-nav {width: 100%}
+    {% endif %}
+    .header__logo {width: {{ section.settings.logo_max_width }}px}
+    {% if section.settings.message_show %}
+    .announcement {
+        background-color: {{ section.settings.message_color_bg }};
+    }
+    .announcement__text,
+    .announcement__text.rte a {
+        color: {{ section.settings.message_color_text }};
+    }
+    .announcement__text.rte a {
+        border-color: {{ section.settings.message_color_text }};
+    }
+    {% endif %}
+    {% unless section.settings.header_bg == '#ffffff' or template == 'product' %}
+        .main { margin-top: 30px }
+        .main .shopify-section:first-child .section--full { margin-top: -30px }
+    {% endunless %}
+</style> 
+
+{% if section.settings.message_show %}
+    {% if section.settings.home_page_only == false or template.name == 'index' %}
+        {% unless section.settings.message_link == blank %}
+        <a href="{{ section.settings.message_link }}" class="announcement__link">
+        {% endunless %}
+            <div class="announcement">
+                <p class="announcement__text">{{ section.settings.message_text | escape }}</p>
+            </div>
+        {% unless section.settings.message_link == blank %}
+        </a>
+        {% endunless %}
+    {% endif %}
+{% endif %}
+
+<header role="banner" id="top" class="header header--{{ section.settings.header_style }} js-header{% if section.settings.style contains 'sticky' %} header--sticky js-header-sticky{% else %} header--not-sticky{% endif %}{% if section.settings.style == 'center' %} header--center{% else %} u-flex u-flex--middle u-flex--center{% endif %}{% if section.settings.show_border %} header--stripe{% endif %}{% if section.settings.mega_nav %} header--mega{% endif %}{% if settings.search_enable and settings.search_show_bar and template.name == 'index' %} header--search-bar{% endif %}" data-section-id="{{ section.id }}" data-section-type="header-section">
+
+    {% if section.settings.show_border %}
+        <div class="header-stripe"></div>
+    {% endif %}
+
+    <div class="header__logo u-flex u-flex--middle u-flex--center{% unless section.settings.logo %} header__logo--text{% endunless %}">
+        {% if template == 'index' %}
+            <h1 class="header__logo-wrapper js-main-logo" itemscope itemtype="http://schema.org/Organization">
+        {% else %}
+            <div class="header__logo-wrapper js-main-logo" itemscope itemtype="http://schema.org/Organization">
+        {% endif %}
+            {% if section.settings.logo %}
+                <a href="/" itemprop="url" class="header__logo-link animsition-link">
+                    {% capture image_size %}{{ section.settings.logo_max_width | times: 2 | round }}x{% endcapture %}
+                    <img src="{{ section.settings.logo | img_url: image_size }}" class="header__logo-img" alt="{{ section.settings.logo.alt | default: shop.name }}" itemprop="logo">
+                </a>
+            {% else %}
+                <a href="/" class="header__logo-link header__logo-link--text" itemprop="url">{{ shop.name }}</a>
+            {% endif %}
+        {% if template == 'index' %}
+            </h1>
+        {% else %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="header-trigger header-trigger--left mobile-draw-trigger-icon u-flex u-flex--middle js-mobile-draw-icon" style="display: none">
+        <a href="#" class="header-trigger__link header-trigger__link--mobile js-mobile-draw-trigger icon-fallback">
+            <i class="icon icon--menu" aria-hidden="true"></i>
+            <span class="icon-fallback__text">{{ 'layout.navigation.menu' | t }}</span>
+        </a>
+    </div>
+    {% if settings.search_enable %}
+        <div class="header-trigger header-trigger--right search-draw-trigger-icon u-flex u-flex--middle js-search-draw-icon" style="display: none">
+            <a href="/search" class="header-trigger__link header-trigger__link--search icon-fallback js-search-trigger js-no-transition">
+                <i class="icon icon--search" aria-hidden="true"></i>
+                <span class="icon-fallback__text">{{ 'layout.navigation.search' | t }}</span>
+            </a>
+        </div>
+    {% endif %}
+    <div class="header-trigger header-trigger--far-right cart-draw-trigger-icon u-flex u-flex--middle js-cart-draw-icon" style="display: none">
+        <a href="/cart" class="header-trigger__link header-trigger__link--cart js-cart-trigger icon-fallback{% if cart.item_count > 0 %} js-cart-full{% endif %} js-no-transition">
+            <i class="icon icon--cart" aria-hidden="true"></i>
+            <span class="icon-fallback__text">{{ 'layout.navigation.cart' | t }}</span>
+        </a>
+    </div>
+
+    <div class="header-navs js-heaver-navs u-clearfix u-hidden@tab-down">
+        
+        <nav class="primary-nav header-navs__items js-primary-nav" role="navigation">
+            <ul class="primary-nav__items">
+                {% for link in linklists[section.settings.main_linklist].links %}
+                    {% capture parentIndex %}{{ forloop.index }}{% endcapture %}
+                    <li class="primary-nav__item{% if link.active %} primary-nav__item--active{% endif %}{% if link.links != blank %} primary-nav__item--sub js-header-sub-link{% endif %}"{% if link.links != blank %} aria-has-popup="true" aria-expanded="false" aria-controls="sub-{{ forloop.index }}"{% endif %}>
+                        <a href="{{ link.url }}" class="primary-nav__link animsition-link{% if link.links != blank %} nav__link--sub js-header-sub-link-a{% endif %}">{{ link.title }}</a>
+
+                        {% if link.links != blank %}
+                            <div class="nav__sub{% if section.settings.mega_image or section.settings.mega_title != blank or section.settings.mega_text != blank or section.settings.mega_link != blank %} nav__sub--cta{% endif %}" id="sub-{{ forloop.index }}">
+                                <div class="nav__sub-wrap">
+                                    
+                                    <ul class="nav__sub__items nav__sub__items--{{ link.links.size }}{% if link.levels == 1 %} nav__sub__items--single{% endif %} o-list-bare">
+
+                                        {% for sub_link in link.links %}
+                                            <li class="nav__sub__item{% if sub_link.active %} nav__sub__item--active{% endif %}{% if sub_link.links != blank %} nav__sub__item--sub js-header-sub-t-link{% endif %}"{% if link.links != blank %} aria-has-popup="true" aria-expanded="false" aria-controls="sub-t-{{ parentIndex }}-{{ forloop.index }}"{% endif %}>
+                                                <a href="{{ sub_link.url }}" class="nav__sub__link{% if sub_link.links != blank %} js-header-sub-t-a{% endif %}">{{ sub_link.title | escape }}</a>
+
+                                                {% if sub_link.links != blank %} 
+                                                    <div class="nav__sub-t js-nav-sub-t" id="sub-t-{{ parentIndex }}-{{ forloop.index }}">
+                                                        <div class="nav__sub-t-wrap"> 
+                                                            <ul class="nav__sub-t__items o-list-bare">
+
+                                                                {% for sub_sub_link in sub_link.links %}
+                                                                    <li class="nav__sub-t__item{% if sub_sub_link.active %} nav__sub-t__item--active{% endif %}">
+                                                                        <a href="{{ sub_sub_link.url }}" class="nav__sub-t__link">{{ sub_sub_link.title | escape }}</a>
+                                                                    </li>
+                                                                {% endfor %}
+
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+
+                                            </li>
+                                        {% endfor %}
+
+                                    </ul>
+
+                                    {% if section.settings.mega_nav %}
+                                        {% if section.settings.mega_image or section.settings.mega_title != blank or section.settings.mega_text != blank or section.settings.mega_link != blank %}
+                                            <div class="nav__sub__cta">
+                                                {% unless section.settings.mega_image_link == blank %}
+                                                <a href="{{ section.settings.mega_image_link }}" class="nav__sub__cta-image-link">
+                                                {% endunless %}
+                                                    {% if section.settings.mega_image %}
+                                                        {%- assign img_url = section.settings.mega_image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+                                                        <img class="nav__sub__cta-image lazyload js"
+                                                            src="{{ section.settings.mega_image | img_url: '300x' }}" 
+                                                            data-src="{{ img_url }}"
+                                                            data-widths="[180, 360, 540, 720, 900]"
+                                                            data-sizes="auto"
+                                                            alt="{{ section.settings.mega_image.alt }}">
+                                                        <noscript>
+                                                            <img class="nav__sub__cta-image"
+                                                                src="{{ section.settings.mega_image | img_url: '720x' }}"
+                                                                alt="{{ section.settings.mega_image.alt }}">
+                                                        </noscript>
+                                                    {% endif %}
+                                                {% unless section.settings.mega_image_link == blank %}
+                                                </a>
+                                                {% endunless %}
+                                                {% unless section.settings.mega_title == blank %}
+                                                    <h4 class="nav__sub__cta-title h5">{{ section.settings.mega_title  | escape }}</h4>
+                                                {% endunless %}
+                                                {% unless section.settings.mega_text == blank %}
+                                                    <div class="nav__sub__cta-text rte">
+                                                        {{ section.settings.mega_text }}
+                                                    </div>
+                                                {% endunless %}
+                                                {% unless section.settings.mega_link == blank %}
+                                                    <div class="nav__sub__cta-link">
+                                                        <a href="{{ section.settings.mega_link }}" class="link link--arrow">{{ section.settings.mega_link_title | escape }}</a>
+                                                    </div>
+                                                {% endunless %}
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+
+                                </div>
+                            </div>
+                        {% endif %}
+
+                    </li>
+                {% endfor %}
+            </ul>
+        </nav>
+
+        <nav class="secondary-nav header-navs__items js-secondary-nav">
+            <ul class="secondary-nav__items">
+
+                {% if shop.customer_accounts_enabled %}
+                    {% if customer %}
+                        <li class="secondary-nav__item secondary-nav__item--sub js-header-sub-link">
+                            <a href="/account" class="primary-nav__link nav__link--sub js-header-sub-link-a">{{ 'layout.customer.account' | t }}</a>
+                            <div class="nav__sub" id="sub-account">
+                                <div class="nav__sub-wrap nav__sub-wrap--account">
+                                    <ul class="nav__sub__items o-list-bare">
+                                        
+                                        <li class="nav__sub__item"><a href="/account" class="nav__sub__link">{{ 'layout.customer.account' | t }}</a></li>
+
+                                        <li class="nav__sub__item"><a href="/account/logout" class="nav__sub__link">{{ 'layout.customer.log_out' | t }}</a></li>
+                                        
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+                    {% else %}
+                        <li class="secondary-nav__item">
+                            <a href="/account/login" class="secondary-nav__link">{{ 'layout.customer.log_in' | t }}</a>
+                        </li>
+                    {% endif %}
+                {% endif %}
+
+                {% if settings.show_multiple_currencies %}
+                    <li class="secondary-nav__item secondary-nav__item--sub js-header-sub-link">
+                        <a href="#" class="primary-nav__link primary-nav__link--currency nav__link--sub js-header-sub-link-a"><span class="js-currency-trigger-text">{{ shop.currency }}</span></a>
+                        <div class="nav__sub">
+                            <div class="nav__sub-wrap nav__sub-wrap--currency">
+                                <ul class="nav__sub__items o-list-bare">
+                                    <span id="currencies">
+                                    {% assign currencies = settings.supported_currencies | split: " "  %}
+                                        {% for currency in currencies %}
+                                            <li class="nav__sub__item nav__sub__item--currency">
+                                                <a href="#" data-currency="{{ currency }}" class="nav__sub__link nav__sub__link--currency js-currency-item{% if shop.currency == currency %} selected{% endif %}">{{ currency }}</a>
+                                            </li>
+                                        {% endfor %}
+                                    </span>
+                                </ul>
+                            </div> 
+                        </div>
+                    </li>
+                {% endif %}
+
+                <li class="secondary-nav__item"> 
+                    <a href="/cart" class="secondary-nav__link js-cart-trigger js-no-transition">{{ 'layout.cart.title' | t }} (<span id="CartCount">{{ cart.item_count }}</span>)</a>
+                </li>
+                
+                {% if settings.search_enable %}
+                    <li class="secondary-nav__item secondary-nav__item--search">
+                        <a href="/search" class="secondary-nav__link secondary-nav__link--search icon-fallback js-search-trigger js-no-transition">
+                            <i class="icon icon--search" aria-hidden="true"></i>
+                            <span class="icon-fallback__text">{{ 'layout.navigation.search' | t }}</span>
+                        </a>
+                    </li>
+                {% endif %}
+
+            </ul>
+        </nav>
+
+    </div>
+</header>
+
+{% schema %}
+{
+    "name": "Header",
+    "class": "js-section__header",
+    "settings": [
+        {
+            "type": "checkbox",
+            "id": "show_border",
+            "label": "Show accent border",
+            "default": true
+        },
+        {
+            "type": "color",
+            "id": "header_bg",
+            "label": "Background color",
+            "default": "#ffffff"
+        },
+        {
+            "type": "select",
+            "id": "header_style",
+            "label": "Text color",
+            "default": "light",
+            "options": [
+                {
+                    "value": "light",
+                    "label": "Light"
+                },
+                {
+                    "value": "dark",
+                    "label": "Dark"
+                }
+            ]
+        },
+        {
+            "type": "image_picker",
+            "id": "logo",
+            "label": "Logo image"
+        },
+        {
+            "type": "range",
+            "id": "logo_max_width",
+            "label": "Custom logo width",
+            "unit": "px",
+            "min": 40,
+            "max": 400,
+            "step": 10,
+            "default": 200
+        },
+        {
+            "type": "link_list",
+            "id": "main_linklist",
+            "label": "Menu",
+            "default": "main-menu"
+        },
+        {
+            "type": "select",
+            "id": "style",
+            "label": "Navigation style",
+            "options": [
+                {
+                    "value": "left",
+                    "label": "Inline"
+                },
+                {
+                    "value": "sticky-left",
+                    "label": "Sticky inline"
+                },
+                {
+                    "value": "icons",
+                    "label": "Icons"
+                },
+                {
+                    "value": "sticky-icons",
+                    "label": "Sticky icons"
+                },
+                {
+                    "value": "center",
+                    "label": "Center"
+                }
+            ],
+            "default": "left"
+        },
+        {
+            "type": "header",
+            "content": "Mega navigation"
+        },
+        {
+            "type": "checkbox",
+            "id": "mega_nav",
+            "label": "Enable",
+            "default": false
+        },
+        {
+            "type": "image_picker",
+            "id": "mega_image",
+            "label": "Image",
+            "info": "600px width recommended."
+        },
+        {
+            "type": "url",
+            "id": "mega_image_link",
+            "label": "Image link"
+        },
+        {
+            "type": "text",
+            "id": "mega_title",
+            "label": "Heading"
+        },
+        { 
+            "type": "richtext",
+            "id": "mega_text",
+            "label": "Text"
+        },
+        {
+            "type": "text",
+            "id": "mega_link_title",
+            "label": "Link label",
+            "default": "Learn more"
+        },
+        {
+            "type": "url",
+            "id": "mega_link",
+            "label": "Link"
+        },
+        {
+            "type": "header",
+            "content": "Announcement bar"
+        },
+        {
+            "type": "checkbox",
+            "id": "message_show",
+            "label": "Enable announcement bar",
+            "default": false
+        },
+        {
+            "type": "checkbox",
+            "id": "home_page_only",
+            "label": "Home page only",
+            "default": false
+        },
+        {
+            "type": "textarea",
+            "id": "message_text",
+            "label": "Text",
+            "default": "Use this announcement bar to share some news and link to page or product."
+        },
+        {
+            "type": "url",
+            "id": "message_link",
+            "label": "Link"
+        },
+        {
+            "type": "color",
+            "id": "message_color_bg",
+            "label": "Background color",
+            "default": "#222"
+        },
+        {
+            "type": "color",
+            "id": "message_color_text",
+            "label": "Text color",
+            "default": "#fff"
+        }
+    ]
+}
+{% endschema %}

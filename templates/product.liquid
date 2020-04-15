@@ -1,0 +1,79 @@
+{% section 'product-template' %}
+{% section 'product-recommendations' %}
+
+<script type="application/json" id="ProductJson-1">
+    {{ product | json }}
+</script>
+<script>
+    theme.money_format = '{{ shop.money_format }}';
+    theme.t.add_to_cart = '{{ 'products.product.add_to_cart' | t }}';
+    theme.t.sold_out = '{{ 'products.product.sold_out' | t }}';
+    theme.t.unavailable = '{{ 'products.product.unavailable' | t }}';
+
+    document.addEventListener("DOMContentLoaded", function(event) { 
+        theme.productSelect('1','single', true);
+        theme.selectWrapper();
+    });
+</script>
+
+{% assign current_variant = product.selected_or_first_available_variant %}
+{% if product.metafields.spr.reviews %}
+  {% capture review_data %}{{ product.metafields.spr.reviews }}{% endcapture %}
+  {%- assign rating_keyword = '"ratingValue"' -%}
+  {%- assign rd_a1 = review_data | split: rating_keyword -%}
+  {%- assign rd_a2 = rd_a1[1] | split: "=" -%}
+  {%- assign rd_a3 = rd_a2[1] | split: '"' -%}
+  {%- assign review_rating = rd_a3[1] | plus: 1 | minus: 1 -%}
+
+  {%- assign count_keyword = '"reviewCount"' -%}
+  {%- assign rd_a1 = review_data | split: count_keyword -%}
+  {%- assign rd_a2 = rd_a1[1] | split: "=" -%}
+  {%- assign rd_a3 = rd_a2[1] | split: '"' -%}
+  {%- assign review_count = rd_a3[1] | plus: 1 | minus: 1 -%}
+{% endif %}
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org/",
+  "@type": "Product",
+  "name": "{{ product.title | escape }}",
+  "url": "{{ shop.url }}{{ product.url }}",
+  {%- if product.featured_image -%}
+    {%- assign image_size = product.featured_image.width | append: 'x' -%}
+    "image": [
+      "https:{{ product.featured_image.src | img_url: image_size }}"
+    ],
+  {%- endif -%}
+  "description": "{{ product.description | strip_html | escape }}",
+  {%- if current_variant.sku != blank -%}
+    "sku": "{{ current_variant.sku }}",
+  {%- endif -%}
+  "brand": {
+    "@type": "Thing",
+    "name": "{{ product.vendor | escape }}"
+  },
+  "offers": [
+    {%- for variant in product.variants -%}
+      {
+        "@type" : "Offer",
+        {%- if variant.sku != blank -%}
+          "sku": "{{ variant.sku }}",
+        {%- endif -%}
+        "availability" : "http://schema.org/{% if product.available %}InStock{% else %}OutOfStock{% endif %}",
+        "price" : "{{ variant.price | divided_by: 100.00 }}",
+        "priceCurrency" : "{{ shop.currency }}",
+        "url" : "{{ shop.url }}{{ variant.url }}"
+      }{% unless forloop.last %},{% endunless %}
+    {%- endfor -%}
+  ]{% if review_rating %},
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "itemReviewed": "{{ product.title | escape }}",
+    "bestRating": "5",
+    "worstRating": "1",
+    "ratingValue": "{{ review_rating }}",
+    "reviewCount": "{{ review_count }}"
+  }
+  {% endif %}
+}
+</script>
