@@ -2700,6 +2700,7 @@ body:not(.template-index) .giftcard-wrapper,
 
 .footer-copyright {
     margin-top: 9px;
+    text-align: center;
 }
 .footer-copyright__text {
     color: rgba($color--white, .8);
@@ -4444,6 +4445,20 @@ body:not(.template-index) .giftcard-wrapper,
 }
 .home-carousel--image_link:hover {
     opacity: 0.95;
+}
+
+.home-carousel--image_block {
+  &.desktop-only {
+    @include mq-max($desk) {
+      display: none;
+    }
+  }
+
+  &.mobile-only {
+    @include mq($desk) {
+      display: none;
+    }
+  }
 }
 /* ==========================================================================
    #HOME IMAGE GRID WITH TEXT

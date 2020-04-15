@@ -1,3 +1,7 @@
+{% assign mobile_image_widths = '180, 360, 540, 720, 900, 1080' %}
+{% assign desktop_image_widths = '1296, 1512, 1728, 2048' %}
+{% assign all_image_widths = mobile_image_widths | append: ', ' | append: desktop_image_widths %}
+
 {% if section.blocks.size > 0 %}
 <section class="section section--{{ section.id }}{% if section.settings.slideshow_width == 'full' %} section--full{% endif %}" data-section-id="{{ section.id }}" data-section-type="home-carousel">
     {% if section.settings.slideshow_width == 'contained' %}<div class="container container--mob-0">{% endif %}
@@ -9,18 +13,49 @@
                             {% unless block.settings.link == blank %}
                             <a href="{{ block.settings.link }}" class="home-carousel--image_link">
                             {% endunless %}
+                                
+                                {% comment %} If there's a mobile image, output that first {% endcomment %}
+                                {% if block.settings.image_mobile != blank %}
+                                    {%- assign img_url = block.settings.image_mobile | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
+                                    <div class="home-carousel--image_block mobile-only">
+                                        <img class="home-carousel--image_img lazyload js"
+                                            src="{{ block.settings.image_mobile | img_url: '300x' }}" 
+                                            data-src="{{ img_url }}"
+                                            data-widths="[{{ mobile_image_widths }}]"
+                                            data-sizes="auto"
+                                            alt="{{ block.settings.image_mobile.alt }}">
+                                        <noscript>
+                                            <img class="home-carousel--image_img"
+                                                src="{{ block.settings.image_mobile | img_url: '1400x' }}"
+                                                alt="{{ block.settings.image_mobile.alt }}">
+                                        </noscript>
+                                    </div>
+                                {% endif %}
+
+                                {% comment %}
+                                    "desktop-only" class gets applied only when there's a mobile image specified
+                                    this is what allows us to fallback to the desktop image
+                                {% endcomment %}
+
+
                                 {%- assign img_url = block.settings.image | img_url: '1x1' | replace: '_1x1.', '_{width}x.' -%}
-                                <img class="home-carousel--image_img lazyload js"
-                                    src="{{ block.settings.image | img_url: '300x' }}" 
-                                    data-src="{{ img_url }}"
-                                    data-widths="[180, 360, 540, 720, 900, 1080, 1296, 1512, 1728, 2048]"
-                                    data-sizes="auto"
-                                    alt="{{ block.settings.image.alt }}">
-                                <noscript>
-                                    <img class="home-carousel--image_img"
-                                        src="{{ block.settings.image | img_url: '1400x' }}"
+                                <div class="home-carousel--image_block{% if block.settings.image_mobile != blank %} desktop-only{% endif %}">
+                                    <img class="home-carousel--image_img lazyload js"
+                                        src="{{ block.settings.image | img_url: '300x' }}" 
+                                        data-src="{{ img_url }}"
+                                        {% if block.settings.image_mobile == blank %}
+                                            data-widths="[{{ all_image_widths }}]"
+                                        {% else %}
+                                            data-widths="[{{ desktop_image_widths }}]"
+                                        {% endif %}
+                                        data-sizes="auto"
                                         alt="{{ block.settings.image.alt }}">
-                                </noscript>
+                                    <noscript>
+                                        <img class="home-carousel--image_img"
+                                            src="{{ block.settings.image | img_url: '1400x' }}"
+                                            alt="{{ block.settings.image.alt }}">
+                                    </noscript>
+                                </div>
                             {% unless block.settings.link == blank %}
                             </a>
                             {% endunless %}
@@ -91,6 +126,12 @@
                     "id": "image",
                     "label": "Image",
                     "info": "1400px width recommended."
+                },
+                {
+                    "type": "image_picker",
+                    "id": "image_mobile",
+                    "label": "Image (Mobile)",
+                    "info": "Optional - will default to main image if left blank"
                 },
                 {
                     "type": "url",

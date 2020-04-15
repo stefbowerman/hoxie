@@ -1,9 +1,6 @@
 <style type="text/css">
    .footer {
         background-color: {{ section.settings.footer_bg }};
-        {% if section.settings.footer_bg == '#ffffff' %}
-            border-top: 1px solid #e4e4e4;
-        {% endif %}
     }
     .footer__bottom {
         background-color: {{ section.settings.footer_bg | color_darken: 5 }};   
@@ -68,7 +65,7 @@
 <footer role="contentinfo" id="footer" class="footer footer--{{ section.settings.footer_style }}">
     <div class="container">
         <div class="footer__content">
-            <div class="o-layout">
+            {%- capture footer_content -%}
                 {% case section.blocks.size %}
                     {% when 1 %}
                         {%- assign grid_item_width = 'u-1/1 u-1/2@tab u-1/2@desk' -%}
@@ -356,7 +353,13 @@
                         </div>
                     {% endif %}
                 {% endfor %}
-            </div>
+            {%- endcapture -%}
+            
+            {% if footer_content != blank %}
+                <div class="o-layout">
+                    {{ footer_content }}
+                </div>
+            {% endif %}
 
             <div class="footer-copyright">
                 <p class="footer-copyright__text">
