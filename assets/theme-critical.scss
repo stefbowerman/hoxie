@@ -4966,8 +4966,6 @@ body[data-anim-load="true"].js-theme-loading {
 	}
 }
 body[data-anim-load="true"].js-theme-loaded {
-    background: $color--grey-lighter;
-    @include transition(background .5s ease-in);
 
 	.header,
 	.header-search,
@@ -5025,9 +5023,6 @@ body[data-anim-load="false"].js-theme-loading {
 	}
 }
 body[data-anim-load="false"].js-theme-loaded {
-	background: $color--grey-lighter;
-	@include transition(background .5s ease-in);
-	@include transition-delay(.5s);
 
 	.page-container {
 		opacity: 1;
