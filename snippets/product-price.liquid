@@ -20,7 +20,7 @@
         <span class="product__price-price product__price-price--sale"><span class="money">{{ money_price }}</span></span>
         <strike class="product__price-cross"><span class="money">{{ compare_at_price | money }}</span></strike>
     {% else %}
-        <span class="product__price-price"><span class="money">{{ money_price }}</span></span>
+        {% if price_varies %}From {% endif %}<span class="product__price-price"><span class="money">{{ money_price }}</span></span>
     {% endif %}
 {% endif %}
 {% unless available %}
